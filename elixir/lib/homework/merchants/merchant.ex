@@ -7,6 +7,8 @@ defmodule Homework.Merchants.Merchant do
     field(:description, :string)
     field(:name, :string)
 
+    has_many(:transactions, Homework.Transactions.Transaction)
+
     timestamps()
   end
 

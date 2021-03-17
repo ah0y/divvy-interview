@@ -3,13 +3,20 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
   Defines the graphql schema for transactions.
   """
   use Absinthe.Schema.Notation
+  use Absinthe.Relay.Schema.Notation, :modern
 
+  alias Homework.Users
+  alias Homework.Merchants
   alias HomeworkWeb.Resolvers.TransactionsResolver
 
-  object :transaction do
+  import Absinthe.Resolution.Helpers
+
+  connection(node_type: :transaction)
+
+  node object(:transaction) do
     field(:id, non_null(:id))
     field(:user_id, :id)
-    field(:amount, :integer)
+    field(:amount, :decimal)
     field(:credit, :boolean)
     field(:debit, :boolean)
     field(:description, :string)
@@ -17,13 +24,8 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
     field(:inserted_at, :naive_datetime)
     field(:updated_at, :naive_datetime)
 
-    field(:user, :user) do
-      resolve(&TransactionsResolver.user/3)
-    end
-
-    field(:merchant, :merchant) do
-      resolve(&TransactionsResolver.merchant/3)
-    end
+    field(:user, :user, resolve: dataloader(Users))
+    field(:merchant, :merchant, resolve: dataloader(Merchants))
   end
 
   object :transaction_mutations do
@@ -32,7 +34,7 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
       arg(:user_id, non_null(:id))
       arg(:merchant_id, non_null(:id))
       @desc "amount is in cents"
-      arg(:amount, non_null(:integer))
+      arg(:amount, non_null(:decimal))
       arg(:credit, non_null(:boolean))
       arg(:debit, non_null(:boolean))
       arg(:description, non_null(:string))
@@ -43,10 +45,10 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
     @desc "Update a new transaction"
     field :update_transaction, :transaction do
       arg(:id, non_null(:id))
-      arg(:user_id, non_null(:id))
-      arg(:merchant_id, non_null(:id))
+      arg(:user_id, :id)
+      arg(:merchant_id, :id)
       @desc "amount is in cents"
-      arg(:amount, non_null(:integer))
+      arg(:amount, non_null(:decimal))
       arg(:credit, non_null(:boolean))
       arg(:debit, non_null(:boolean))
       arg(:description, non_null(:string))

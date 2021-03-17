@@ -1,27 +1,28 @@
 defmodule HomeworkWeb.Resolvers.TransactionsResolver do
-  alias Homework.Merchants
   alias Homework.Transactions
-  alias Homework.Users
+  alias Homework.Repo
+  import Absinthe.Resolution.Helpers
 
   @doc """
   Get a list of transcations
   """
   def transactions(_root, args, _info) do
-    {:ok, Transactions.list_transactions(args)}
+    Absinthe.Relay.Connection.from_query(
+      Transactions.transactions_query(args),
+      &Repo.all/1,
+      args
+    )
   end
 
   @doc """
-  Get the user associated with a transaction
+  Get a transaction
   """
-  def user(_root, _args, %{source: %{user_id: user_id}}) do
-    {:ok, Users.get_user!(user_id)}
-  end
-
-  @doc """
-  Get the merchant associated with a transaction
-  """
-  def merchant(_root, _args, %{source: %{merchant_id: merchant_id}}) do
-    {:ok, Merchants.get_merchant!(merchant_id)}
+  def get_transaction(_, %{id: id}, %{context: %{loader: loader}}) do
+    loader
+    |> Dataloader.load(Transactions, Transactions.Transaction, id)
+    |> on_load(fn loader ->
+      {:ok, Dataloader.get(loader, Transactions, Transactions.Transaction, id)}
+    end)
   end
 
   @doc """

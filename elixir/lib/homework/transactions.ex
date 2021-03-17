@@ -7,6 +7,8 @@ defmodule Homework.Transactions do
   alias Homework.Repo
 
   alias Homework.Transactions.Transaction
+  alias Homework.Users
+  alias Homework.Companies
 
   @doc """
   Returns the list of transactions.
@@ -17,8 +19,39 @@ defmodule Homework.Transactions do
       [%Transaction{}, ...]
 
   """
-  def list_transactions(_args) do
-    Repo.all(Transaction)
+  def list_transactions(args) do
+    args
+    |> transactions_query
+    |> Repo.all()
+  end
+
+  def transactions_query(args) do
+    Enum.reduce(args, Transaction, fn
+      {:order, order}, query ->
+        query |> order_by({^order, :inserted_at})
+
+      {:filter, filter}, query ->
+        query |> filter_with(filter)
+
+      _, query ->
+        query
+    end)
+  end
+
+  defp filter_with(query, filter) do
+    Enum.reduce(filter, query, fn
+      {:min, min}, query ->
+        from(q in query, where: q.amount >= ^min)
+
+      {:max, max}, query ->
+        from(q in query, where: q.amount <= ^max)
+
+      {:after, date}, query ->
+        from(q in query, where: q.added_on >= ^date)
+
+      {:before, date}, query ->
+        from(q in query, where: q.added_on <= ^date)
+    end)
   end
 
   @doc """
@@ -50,9 +83,30 @@ defmodule Homework.Transactions do
 
   """
   def create_transaction(attrs \\ %{}) do
-    %Transaction{}
-    |> Transaction.changeset(attrs)
-    |> Repo.insert()
+    changeset =
+      %Transaction{}
+      |> Transaction.changeset(attrs)
+
+    company =
+      Users.get_user(attrs.user_id)
+      |> Repo.preload(:company)
+      |> Map.get(:company)
+
+    case maybe_create_transaction(attrs, company, changeset) do
+      {:ok, transaction_transaction_result} -> transaction_transaction_result
+      e -> e
+    end
+  end
+
+  defp maybe_create_transaction(attrs, company, changeset) do
+    Repo.transaction(fn ->
+      {:ok, _updated_company} =
+        Companies.update_company(company, %{
+          available_credit: company.available_credit - attrs.amount
+        })
+
+      {:ok, _transaction} = Repo.insert(changeset)
+    end)
   end
 
   @doc """
@@ -100,5 +154,17 @@ defmodule Homework.Transactions do
   """
   def change_transaction(%Transaction{} = transaction, attrs \\ %{}) do
     Transaction.changeset(transaction, attrs)
+  end
+
+  def data() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Transaction, args) do
+    transactions_query(args)
+  end
+
+  def query(queryable, _) do
+    queryable
   end
 end

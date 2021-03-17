@@ -17,25 +17,49 @@ defmodule Homework.Users do
       [%User{}, ...]
 
   """
-  def list_users(_args) do
-    Repo.all(User)
+  def list_users(args) do
+    args
+    |> users_query
+    |> Repo.all()
+  end
+
+  def users_query(args) do
+    Enum.reduce(args, User, fn
+      {:order, order}, query ->
+        query |> order_by({^order, :first_name})
+
+      {:filter, filter}, query ->
+        query |> filter_with(filter)
+
+      _, query ->
+        query
+    end)
+  end
+
+  defp filter_with(query, filter) do
+    Enum.reduce(filter, query, fn
+      {:name, name}, query ->
+        from(q in query,
+          where: ilike(q.first_name, ^"%#{name}%") or ilike(q.last_name, ^"%#{name}%")
+        )
+    end)
   end
 
   @doc """
   Gets a single user.
 
-  Raises `Ecto.NoResultsError` if the User does not exist.
+  Raises `nil` if the User does not exist.
 
   ## Examples
 
-      iex> get_user!(123)
+      iex> get_user(123)
       %User{}
 
-      iex> get_user!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_user(456)
+      nil
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user(id), do: Repo.get(User, id)
 
   @doc """
   Creates a user.
@@ -100,5 +124,17 @@ defmodule Homework.Users do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  def data() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(User, args) do
+    users_query(args)
+  end
+
+  def query(queryable, _) do
+    queryable
   end
 end

@@ -17,8 +17,30 @@ defmodule Homework.Merchants do
       [%Merchant{}, ...]
 
   """
-  def list_merchants(_args) do
-    Repo.all(Merchant)
+  def list_merchants(args) do
+    args
+    |> merchants_query
+    |> Repo.all()
+  end
+
+  def merchants_query(args) do
+    Enum.reduce(args, Merchant, fn
+      {:order, order}, query ->
+        query |> order_by({^order, :name})
+
+      {:filter, filter}, query ->
+        query |> filter_with(filter)
+
+      _, query ->
+        query
+    end)
+  end
+
+  defp filter_with(query, filter) do
+    Enum.reduce(filter, query, fn
+      {:name, name}, query ->
+        from(q in query, where: ilike(q.name, ^"%#{name}%"))
+    end)
   end
 
   @doc """
@@ -100,5 +122,17 @@ defmodule Homework.Merchants do
   """
   def change_merchant(%Merchant{} = merchant, attrs \\ %{}) do
     Merchant.changeset(merchant, attrs)
+  end
+
+  def data() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Merchant, args) do
+    merchants_query(args)
+  end
+
+  def query(queryable, _) do
+    queryable
   end
 end

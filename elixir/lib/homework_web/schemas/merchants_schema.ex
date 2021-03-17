@@ -3,15 +3,26 @@ defmodule HomeworkWeb.Schemas.MerchantsSchema do
   Defines the graphql schema for merchants.
   """
   use Absinthe.Schema.Notation
+  use Absinthe.Relay.Schema.Notation, :modern
 
+  alias Homework.Transactions
   alias HomeworkWeb.Resolvers.MerchantsResolver
 
-  object :merchant do
-    field(:id, non_null(:id))
+  import Absinthe.Resolution.Helpers
+
+  connection(node_type: :merchant)
+
+  node object(:merchant) do
     field(:name, :string)
     field(:description, :string)
     field(:inserted_at, :naive_datetime)
     field(:updated_at, :naive_datetime)
+
+    field :transactions, list_of(:transaction) do
+      arg(:filter, :filter)
+      arg(:order, type: :sort_order, default_value: :asc)
+      resolve(dataloader(Transactions, :transactions))
+    end
   end
 
   object :merchant_mutations do

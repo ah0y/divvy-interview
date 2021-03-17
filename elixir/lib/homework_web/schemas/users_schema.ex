@@ -3,16 +3,30 @@ defmodule HomeworkWeb.Schemas.UsersSchema do
   Defines the graphql schema for user.
   """
   use Absinthe.Schema.Notation
+  use Absinthe.Relay.Schema.Notation, :modern
 
+  alias Homework.Transactions
+  alias Homework.Companies
   alias HomeworkWeb.Resolvers.UsersResolver
 
-  object :user do
-    field(:id, non_null(:id))
+  import Absinthe.Resolution.Helpers
+
+  connection(node_type: :user)
+
+  node object(:user) do
     field(:dob, :string)
     field(:first_name, :string)
     field(:last_name, :string)
     field(:inserted_at, :naive_datetime)
     field(:updated_at, :naive_datetime)
+
+    field(:copmany, :company, resolve: dataloader(Companies))
+
+    field :transactions, list_of(:transaction) do
+      arg(:filter, :filter)
+      arg(:order, type: :sort_order, default_value: :asc)
+      resolve(dataloader(Transactions, :transactions))
+    end
   end
 
   object :user_mutations do

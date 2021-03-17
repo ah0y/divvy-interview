@@ -1,11 +1,28 @@
 defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   alias Homework.Merchants
+  alias Homework.Repo
+  import Absinthe.Resolution.Helpers
 
   @doc """
   Get a list of merchants
   """
   def merchants(_root, args, _info) do
-    {:ok, Merchants.list_merchants(args)}
+    Absinthe.Relay.Connection.from_query(
+      Merchants.merchants_query(args),
+      &Repo.all/1,
+      args
+    )
+  end
+
+  @doc """
+  Get a merchant
+  """
+  def get_merchant(_, %{id: id}, %{context: %{loader: loader}}) do
+    loader
+    |> Dataloader.load(Merchants, Merchants.Merchant, id)
+    |> on_load(fn loader ->
+      {:ok, Dataloader.get(loader, Merchants, Merchants.Merchant, id)}
+    end)
   end
 
   @doc """
