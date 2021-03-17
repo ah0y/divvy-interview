@@ -23,6 +23,7 @@ defmodule HomeworkWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import HomeworkWeb.ConnCase
+      import Homework.Factory
 
       alias HomeworkWeb.Router.Helpers, as: Routes
 
