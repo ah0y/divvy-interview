@@ -26,6 +26,7 @@ defmodule Homework.MixProject do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:dev), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
@@ -33,14 +34,17 @@ defmodule Homework.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.4"},
-      {:absinthe_plug, "~> 1.4"},
+      {:absinthe_plug, "~> 1.5.5"},
+      {:absinthe_relay, "~> 1.5.1"},
+      {:absinthe, "~> 1.6.3"},
+      {:dataloader, "~> 1.0.0"},
       {:ecto_sql, "~> 3.4"},
+      {:ex_machina, "~> 2.7.0", only: [:test, :dev]},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:phoenix, "~> 1.5.4"},
       {:phoenix_ecto, "~> 4.1"},
       {:phoenix_live_dashboard, "~> 0.2"},
+      {:phoenix, "~> 1.5.4"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 2.1.0"},
       {:postgrex, ">= 0.0.0"},
