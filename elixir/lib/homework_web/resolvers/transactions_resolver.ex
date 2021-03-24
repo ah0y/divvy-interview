@@ -6,6 +6,8 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   @doc """
   Get a list of transcations
   """
+  @spec transactions(any(), map(), map()) ::
+          {:ok, map} | {:error, any}
   def transactions(_root, args, _info) do
     Absinthe.Relay.Connection.from_query(
       Transactions.transactions_query(args),
@@ -17,6 +19,8 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   @doc """
   Get a transaction
   """
+  @spec get_transaction(any(), map(), map()) ::
+          any()
   def get_transaction(_, %{id: id}, %{context: %{loader: loader}}) do
     loader
     |> Dataloader.load(Transactions, Transactions.Transaction, id)
@@ -28,6 +32,10 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   @doc """
   Create a new transaction
   """
+  @spec(
+    create_transaction(any(), map(), map()) :: {:ok, Homework.Transactions.Transaction.t()},
+    {:error, Ecto.Changeset.t()}
+  )
   def create_transaction(_root, args, _info) do
     case Transactions.create_transaction(args) do
       {:ok, transaction} ->
@@ -41,6 +49,10 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   @doc """
   Updates a transaction for an id with args specified.
   """
+  @spec(
+    update_transaction(any(), map(), map()) :: {:ok, Homework.Transactions.Transaction.t()},
+    {:error, Ecto.Changeset.t()}
+  )
   def update_transaction(_root, %{id: id} = args, _info) do
     transaction = Transactions.get_transaction!(id)
 
@@ -56,6 +68,10 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   @doc """
   Deletes a transaction for an id
   """
+  @spec(
+    delete_transaction(any(), map(), map()) :: {:ok, Homework.Transactions.Transaction.t()},
+    {:error, Ecto.Changeset.t()}
+  )
   def delete_transaction(_root, %{id: id}, _info) do
     transaction = Transactions.get_transaction!(id)
 

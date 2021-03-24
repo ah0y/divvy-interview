@@ -38,6 +38,7 @@ defmodule Homework.MixProject do
       {:absinthe_relay, "~> 1.5.1"},
       {:absinthe, "~> 1.6.3"},
       {:dataloader, "~> 1.0.0"},
+      {:dialyxir, "~> 1.1"},
       {:ecto_sql, "~> 3.4"},
       {:ex_machina, "~> 2.7.0", only: [:test, :dev]},
       {:gettext, "~> 0.11"},

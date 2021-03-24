@@ -6,6 +6,8 @@ defmodule HomeworkWeb.Resolvers.UsersResolver do
   @doc """
   Get a list of users
   """
+  @spec users(any(), map(), map()) ::
+          {:ok, map} | {:error, any}
   def users(_root, args, _info) do
     Absinthe.Relay.Connection.from_query(
       Users.users_query(args),
@@ -17,6 +19,8 @@ defmodule HomeworkWeb.Resolvers.UsersResolver do
   @doc """
   Get a user
   """
+  @spec get_user(any(), map(), map()) ::
+          any()
   def get_user(_, %{id: id}, %{context: %{loader: loader}}) do
     loader
     |> Dataloader.load(Users, Users.User, id)
@@ -28,6 +32,11 @@ defmodule HomeworkWeb.Resolvers.UsersResolver do
   @doc """
   Creates a user
   """
+  @spec
+  create_user(any(), map(), map()) ::
+    {:ok, Homework.Users.User.t()}
+    | {:error, Ecto.Changeset.t()}
+
   def create_user(_root, args, _info) do
     case Users.create_user(args) do
       {:ok, user} ->
@@ -41,6 +50,11 @@ defmodule HomeworkWeb.Resolvers.UsersResolver do
   @doc """
   Updates a user for an id with args specified.
   """
+  @spec
+  update_user(any(), map(), map()) ::
+    {:ok, Homework.Users.User.t()}
+    | {:error, Ecto.Changeset.t()}
+
   def update_user(_root, %{id: id} = args, _info) do
     user = Users.get_user(id)
 
@@ -56,6 +70,11 @@ defmodule HomeworkWeb.Resolvers.UsersResolver do
   @doc """
   Deletes a user for an id
   """
+  @spec
+  delete_user(any(), map(), map()) ::
+    {:ok, Homework.Users.User.t()}
+    | {:error, Ecto.Changeset.t()}
+
   def delete_user(_root, %{id: id}, _info) do
     user = Users.get_user(id)
 

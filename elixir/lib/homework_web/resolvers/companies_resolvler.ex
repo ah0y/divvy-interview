@@ -6,6 +6,8 @@ defmodule HomeworkWeb.Resolvers.CompaniesResolver do
   @doc """
   Get a list of companies
   """
+  @spec companies(any(), map(), map()) ::
+          {:ok, map} | {:error, any}
   def companies(_root, args, _info) do
     Absinthe.Relay.Connection.from_query(
       Companies.companies_query(args),
@@ -17,7 +19,8 @@ defmodule HomeworkWeb.Resolvers.CompaniesResolver do
   @doc """
   Get a company
   """
-
+  @spec get_company(any(), map(), map()) ::
+          any()
   def get_company(_, %{id: id}, %{context: %{loader: loader}}) do
     loader
     |> Dataloader.load(Companies, Companies.Company, id)
@@ -29,6 +32,9 @@ defmodule HomeworkWeb.Resolvers.CompaniesResolver do
   @doc """
   Create a new company
   """
+  @spec create_company(any(), map(), map()) ::
+          {:ok, Homework.Companies.Company.t()}
+          | {:error, Ecto.Changeset.t()}
   def create_company(_root, args, _info) do
     case Companies.create_company(args) do
       {:ok, company} ->
@@ -42,6 +48,9 @@ defmodule HomeworkWeb.Resolvers.CompaniesResolver do
   @doc """
   Updates a company for an id with args specified.
   """
+  @spec update_company(any(), map(), map()) ::
+          {:ok, Homework.Companies.Company.t()}
+          | {:error, Ecto.Changeset.t()}
   def update_company(_root, %{id: id} = args, _info) do
     company = Companies.get_company!(id)
 
@@ -57,6 +66,9 @@ defmodule HomeworkWeb.Resolvers.CompaniesResolver do
   @doc """
   Deletes a company for an id
   """
+  @spec delete_company(any(), map(), map()) ::
+          {:ok, Homework.Companies.Company.t()}
+          | {:error, Ecto.Changeset.t()}
   def delete_company(_root, %{id: id}, _info) do
     company = Companies.get_company!(id)
 

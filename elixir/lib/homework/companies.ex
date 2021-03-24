@@ -17,6 +17,7 @@ defmodule Homework.Companies do
       [%Company{}, ...]
 
   """
+  @spec list_companies(map()) :: list(Company.t())
   def list_companies(args \\ %{}) do
     args
     |> companies_query
@@ -57,6 +58,7 @@ defmodule Homework.Companies do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_company!(term) :: Company.t()
   def get_company!(id), do: Repo.get!(Company, id)
 
   @doc """
@@ -71,6 +73,7 @@ defmodule Homework.Companies do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_company(map()) :: {:ok, Company.t()} | {:error, Ecto.Changeset.t()}
   def create_company(attrs \\ %{}) do
     %Company{}
     |> Company.create_changeset(attrs)
@@ -89,6 +92,8 @@ defmodule Homework.Companies do
       {:error, %Ecto.Changeset{}}
 
   """
+
+  @spec update_company(map()) :: {:ok, Company.t()} | {:error, Ecto.Changeset.t()}
   def update_company(%Company{} = company, attrs) do
     # if changing company credit line, apply the same change to the available credit
     company

@@ -6,6 +6,8 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   @doc """
   Get a list of merchants
   """
+  @spec merchants(any(), map(), map()) ::
+          {:ok, map} | {:error, any}
   def merchants(_root, args, _info) do
     Absinthe.Relay.Connection.from_query(
       Merchants.merchants_query(args),
@@ -17,6 +19,8 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   @doc """
   Get a merchant
   """
+  @spec get_merchant(any(), map(), map()) ::
+          any()
   def get_merchant(_, %{id: id}, %{context: %{loader: loader}}) do
     loader
     |> Dataloader.load(Merchants, Merchants.Merchant, id)
@@ -28,6 +32,9 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   @doc """
   Create a new merchant
   """
+  @spec create_merchant(any(), map(), map()) ::
+          {:ok, Homework.Merchants.Merchant.t()}
+          | {:error, Ecto.Changeset.t()}
   def create_merchant(_root, args, _info) do
     case Merchants.create_merchant(args) do
       {:ok, merchant} ->
@@ -41,6 +48,9 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   @doc """
   Updates a merchant for an id with args specified.
   """
+  @spec update_merchant(any(), map(), map()) ::
+          {:ok, Homework.Merchants.Merchant.t()}
+          | {:error, Ecto.Changeset.t()}
   def update_merchant(_root, %{id: id} = args, _info) do
     merchant = Merchants.get_merchant!(id)
 
@@ -56,6 +66,9 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   @doc """
   Deletes a merchant for an id
   """
+  @spec delete_merchant(any(), map(), map()) ::
+          {:ok, Homework.Merchants.Merchant.t()}
+          | {:error, Ecto.Changeset.t()}
   def delete_merchant(_root, %{id: id}, _info) do
     merchant = Merchants.get_merchant!(id)
 
